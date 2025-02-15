@@ -15,6 +15,9 @@ pub struct CmdArgs {
     /// upper boundary
     #[arg(long, default_value_t = 1000)]
     pub max_value: i32,
+    /// count of elements
+    #[arg(long, default_value_t = 10)]
+    pub elements: i32,
     /// name of distribution
     #[arg(long, default_value_t = String::from("gauss"))]
     pub distribution: String,
