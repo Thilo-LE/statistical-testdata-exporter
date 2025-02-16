@@ -31,7 +31,7 @@ fn main() {
 }
 
 fn execute_dry_run(args: &CmdArgs) {
-    println!("{}", String::from_utf8(get_metrics(&args)).unwrap());
+    println!("{}", String::from_utf8(get_metrics(args)).unwrap());
 }
 
 fn execute_http(addr: &String, args: &CmdArgs) {
@@ -42,12 +42,12 @@ fn execute_http(addr: &String, args: &CmdArgs) {
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
-        handle_connection(stream, &args);
+        handle_connection(stream, args);
     }
 }
 
 fn get_metrics(args: &CmdArgs) -> Vec<u8> {
-    let register = crate::prom_exporter::create_metrics(&args);
+    let register = crate::prom_exporter::create_metrics(args);
 
     let mut buffer = vec![];
     let encoder = TextEncoder::new();
@@ -55,7 +55,7 @@ fn get_metrics(args: &CmdArgs) -> Vec<u8> {
     let metric_families = register.gather();
     encoder.encode(&metric_families, &mut buffer).unwrap();
 
-    return buffer;
+    buffer
 }
 
 fn handle_connection(mut stream: TcpStream, args: &CmdArgs) {
@@ -68,7 +68,7 @@ fn handle_connection(mut stream: TcpStream, args: &CmdArgs) {
     let (status_line, content) = if buffer.starts_with(accepted_uri) {
         (
             "HTTP/1.1 200 OK\r\n\r\n",
-            String::from_utf8(get_metrics(&args)).unwrap(),
+            String::from_utf8(get_metrics(args)).unwrap(),
         )
     } else {
         (

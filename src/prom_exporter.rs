@@ -1,4 +1,4 @@
-use crate::gauss::{gauss_number};
+use crate::gauss::gauss_number;
 
 use prometheus::{
     core::{AtomicF64, GenericGauge},
@@ -8,32 +8,28 @@ use prometheus::{
 use std::time::Instant;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-
 use crate::CmdArgs;
-
 
 pub fn create_metrics(args: &CmdArgs) -> Registry {
     let r = Registry::new();
 
-    create_metrics_gauss(&r, &args);
+    create_metrics_gauss(&r, args);
     r
 }
 
 fn create_metrics_gauss(r: &Registry, args: &CmdArgs) {
     let scraping_start = Instant::now();
 
-    let gauss_sequence = gauss_number(&args);
+    let gauss_sequence = gauss_number(args);
 
-
-    let mut i = 0;
-    for number in gauss_sequence {
-        r.register(Box::new(metric_item_gauss(number, i,  &args).clone())).unwrap();
-        i +=1;
+    for (i, number) in gauss_sequence.into_iter().enumerate() {
+        r.register(Box::new(metric_item_gauss(number, i, args).clone()))
+            .unwrap();
     }
 
     let duration = scraping_start.elapsed().as_secs_f64();
     r.register(Box::new(
-        metric_item_scrape_collector_duration(duration, &args).clone(),
+        metric_item_scrape_collector_duration(duration, args).clone(),
     ))
     .unwrap();
 
@@ -42,12 +38,12 @@ fn create_metrics_gauss(r: &Registry, args: &CmdArgs) {
         .unwrap()
         .as_millis();
     r.register(Box::new(
-        metric_item_scrape_timestamp_msec(timestamp, &args).clone(),
+        metric_item_scrape_timestamp_msec(timestamp, args).clone(),
     ))
     .unwrap();
 }
 
-fn metric_item_gauss(number: f64, i: i32, args: &CmdArgs) -> GenericGauge<AtomicF64> {
+fn metric_item_gauss(number: f64, i: usize, args: &CmdArgs) -> GenericGauge<AtomicF64> {
     let counter_opts = Opts::new("value", "value of the requested distribution")
         .namespace(args.prefix.to_string())
         .const_label("min", args.min_value.to_string())
@@ -62,7 +58,10 @@ fn metric_item_gauss(number: f64, i: i32, args: &CmdArgs) -> GenericGauge<Atomic
     gauss_number
 }
 
-fn metric_item_scrape_collector_duration(duration_sec: f64, args: &CmdArgs) -> GenericGauge<AtomicF64> {
+fn metric_item_scrape_collector_duration(
+    duration_sec: f64,
+    args: &CmdArgs,
+) -> GenericGauge<AtomicF64> {
     let counter_opts = Opts::new(
         "scrape_collector_duration_seconds",
         "time duration of scraping",
@@ -76,10 +75,9 @@ fn metric_item_scrape_collector_duration(duration_sec: f64, args: &CmdArgs) -> G
     scrape_duration
 }
 
-
 fn metric_item_scrape_timestamp_msec(scrape_time: u128, args: &CmdArgs) -> GenericGauge<AtomicF64> {
-    let counter_opts =
-        Opts::new("scrape_timestamp_msec", "timestamp of scraping").namespace(args.prefix.to_string());
+    let counter_opts = Opts::new("scrape_timestamp_msec", "timestamp of scraping")
+        .namespace(args.prefix.to_string());
 
     let scrape_timestamp = Gauge::with_opts(counter_opts).unwrap();
 
@@ -94,59 +92,55 @@ mod test {
 
     #[test]
     fn test_metric_as_gauss() {
-        let args = CmdArgs{
-            port:7878, 
-            elements:1,
+        let args = CmdArgs {
+            port: 7878,
+            elements: 1,
             binding_adress: "127.0.0.1".to_string(),
-            min_value:10,
-            max_value:100,
+            min_value: 10,
+            max_value: 100,
             distribution: "gauss".to_string(),
             prefix: "statistical".to_string(),
-            dry_run: 'n'
+            dry_run: 'n',
         };
 
-
-        let item = metric_item_gauss(42 as f64, 0 as i32, &args);
+        let item = metric_item_gauss(42 as f64, 0 as usize, &args);
 
         assert_eq!(item.get(), 42 as f64);
     }
 
     #[test]
     fn test_metric_duration() {
-        let args = CmdArgs{
-            port:7878, 
-            elements:1,
+        let args = CmdArgs {
+            port: 7878,
+            elements: 1,
             binding_adress: "127.0.0.1".to_string(),
-            min_value:10,
-            max_value:100,
+            min_value: 10,
+            max_value: 100,
             distribution: "gauss".to_string(),
             prefix: "statistical".to_string(),
-            dry_run: 'n'
+            dry_run: 'n',
         };
-
 
         let item = metric_item_scrape_collector_duration(42 as f64, &args);
 
         assert_eq!(item.get(), 42 as f64);
     }
-    
+
     #[test]
     fn test_metric_timestamp() {
-        let args = CmdArgs{
-            port:7878, 
-            elements:1,
+        let args = CmdArgs {
+            port: 7878,
+            elements: 1,
             binding_adress: "127.0.0.1".to_string(),
-            min_value:10,
-            max_value:100,
+            min_value: 10,
+            max_value: 100,
             distribution: "gauss".to_string(),
             prefix: "statistical".to_string(),
-            dry_run: 'n'
+            dry_run: 'n',
         };
-
 
         let item = metric_item_scrape_timestamp_msec(123456789 as u128, &args);
 
         assert_eq!(item.get(), 123456789 as f64);
     }
-    
 }
