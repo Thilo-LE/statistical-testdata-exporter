@@ -18,8 +18,8 @@ pub struct CmdArgs {
     /// count of elements
     #[arg(long, default_value_t = 10)]
     pub elements: i32,
-    /// name of distribution
-    #[arg(long, default_value_t = String::from("gauss"))]
+    /// name of distribution gaussian, uniform, bernoulli
+    #[arg(long, default_value_t = String::from("gaussian"))]
     pub distribution: String,
     /// namespace or prefix
     #[arg(long, default_value_t = String::from("statistical"))]

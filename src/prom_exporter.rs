@@ -1,4 +1,5 @@
 use crate::gauss::gauss_number;
+use crate::uniform::uniform_number;
 
 use prometheus::{
     core::{AtomicF64, GenericGauge},
@@ -10,21 +11,27 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::CmdArgs;
 
+
 pub fn create_metrics(args: &CmdArgs) -> Registry {
     let r = Registry::new();
 
-    create_metrics_gauss(&r, args);
-    r
-}
-
-fn create_metrics_gauss(r: &Registry, args: &CmdArgs) {
     let scraping_start = Instant::now();
 
-    let gauss_sequence = gauss_number(args);
+    if args.distribution == "uniform".to_string() {
+        let uniform_sequence = uniform_number(args);
 
-    for (i, number) in gauss_sequence.into_iter().enumerate() {
-        r.register(Box::new(metric_item_gauss(number, i, args).clone()))
-            .unwrap();
+        for (i, number) in uniform_sequence.into_iter().enumerate() {
+            r.register(Box::new(metric_item_uniform(number, i, args).clone()))
+                .unwrap();
+        }
+    }
+    else {
+        let gauss_sequence = gauss_number(args);
+
+        for (i, number) in gauss_sequence.into_iter().enumerate() {
+            r.register(Box::new(metric_item_gauss(number, i, args).clone()))
+                .unwrap();
+        }
     }
 
     let duration = scraping_start.elapsed().as_secs_f64();
@@ -41,9 +48,26 @@ fn create_metrics_gauss(r: &Registry, args: &CmdArgs) {
         metric_item_scrape_timestamp_msec(timestamp, args).clone(),
     ))
     .unwrap();
+
+    r
 }
 
 fn metric_item_gauss(number: f64, i: usize, args: &CmdArgs) -> GenericGauge<AtomicF64> {
+    let counter_opts = Opts::new("value", "value of the requested distribution")
+        .namespace(args.prefix.to_string())
+        .const_label("min", args.min_value.to_string())
+        .const_label("max", args.max_value.to_string())
+        .const_label("element", i.to_string())
+        .const_label("distribution", args.distribution.to_string());
+
+    let gauss_number = Gauge::with_opts(counter_opts).unwrap();
+
+    gauss_number.add(number);
+
+    gauss_number
+}
+
+fn metric_item_uniform(number: f64, i: usize, args: &CmdArgs) -> GenericGauge<AtomicF64> {
     let counter_opts = Opts::new("value", "value of the requested distribution")
         .namespace(args.prefix.to_string())
         .const_label("min", args.min_value.to_string())

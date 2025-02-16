@@ -1,15 +1,14 @@
-use rand_distr::{Normal, Distribution};
+use rand::Rng;
 
 use crate::CmdArgs;
 
-
-pub fn gauss_number(args: &CmdArgs) -> Vec<f64> {
+pub fn uniform_number(args: &CmdArgs) -> Vec<f64> {
     let mut numbers: Vec<f64> = Vec::new();
 
-    let normal = Normal::new(2.0, 3.0).unwrap();
+    let mut random_set = rand::rng();
 
     for _ in 0..args.elements {
-        numbers.push(normal.sample(&mut rand::rng()) as f64);
+        numbers.push(random_set.random_range(args.min_value..args.max_value) as f64);
     }
 
     numbers
@@ -32,7 +31,7 @@ mod test {
             dry_run: 'n',
         };
 
-        let sequence = gauss_number(&args);
+        let sequence = uniform_number(&args);
         let number = sequence[0];
 
         assert!(number < args.max_value as f64);
@@ -52,6 +51,6 @@ mod test {
             dry_run: 'n',
         };
 
-        assert_eq!(gauss_number(&args).len(), 20);
+        assert_eq!(uniform_number(&args).len(), 20);
     }
 }

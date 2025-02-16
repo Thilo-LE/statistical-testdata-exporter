@@ -6,7 +6,7 @@ use prometheus::{Encoder, TextEncoder};
 mod prom_exporter;
 
 mod gauss;
-
+mod uniform;
 
 use std::net::TcpListener;
 use std::net::TcpStream;
@@ -21,13 +21,11 @@ fn main() {
 
     let addr = format!("{}:{}", args.binding_adress, args.port);
 
-
     if args.dry_run == 'y' {
         execute_dry_run(&args);
     } else {
         execute_http(&addr, &args);
     }
-
 }
 
 fn execute_dry_run(args: &CmdArgs) {
