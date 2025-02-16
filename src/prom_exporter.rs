@@ -175,6 +175,24 @@ mod test {
     }
 
     #[test]
+    fn test_metric_as_chi() {
+        let args = CmdArgs {
+            port: 7878,
+            elements: 1,
+            binding_adress: "127.0.0.1".to_string(),
+            mean_value: 100,
+            deviation_value: 10,
+            distribution: "gauss".to_string(),
+            prefix: "statistical".to_string(),
+            dry_run: 'n',
+        };
+
+        let item = metric_item_chi(42 as f64, 0 as usize, &args);
+
+        assert_eq!(item.get(), 42 as f64);
+    }
+
+    #[test]
     fn test_metric_duration() {
         let args = CmdArgs {
             port: 7878,
