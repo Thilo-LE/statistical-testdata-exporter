@@ -1,5 +1,6 @@
 use crate::gauss::gauss_number;
 use crate::uniform::uniform_number;
+use crate::chisquared::chi_number;
 
 use prometheus::{
     core::{AtomicF64, GenericGauge},
@@ -11,7 +12,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::CmdArgs;
 
-
+// TODO: Funktion gibt ein Result zurück, damit der Fehler übertragen werden kann
 pub fn create_metrics(args: &CmdArgs) -> Registry {
     let r = Registry::new();
 
@@ -25,7 +26,16 @@ pub fn create_metrics(args: &CmdArgs) -> Registry {
                 .unwrap();
         }
     }
-    else {
+    else if args.distribution == "chisquared".to_string() {
+        let chi_sequence = chi_number(args);
+
+        for (i, number) in chi_sequence.into_iter().enumerate() {
+            r.register(Box::new(metric_item_chi(number, i, args).clone()))
+                .unwrap();
+        }
+
+    }
+    else { // FIXME: Test auf Gauss, die unbekannten Verteilungen verursachen einen Abbruch
         let gauss_sequence = gauss_number(args);
 
         for (i, number) in gauss_sequence.into_iter().enumerate() {
@@ -55,8 +65,8 @@ pub fn create_metrics(args: &CmdArgs) -> Registry {
 fn metric_item_gauss(number: f64, i: usize, args: &CmdArgs) -> GenericGauge<AtomicF64> {
     let counter_opts = Opts::new("value", "value of the requested distribution")
         .namespace(args.prefix.to_string())
-        .const_label("min", args.min_value.to_string())
-        .const_label("max", args.max_value.to_string())
+        .const_label("mean", args.mean_value.to_string())
+        .const_label("deviation", args.deviation_value.to_string())
         .const_label("element", i.to_string())
         .const_label("distribution", args.distribution.to_string());
 
@@ -70,16 +80,30 @@ fn metric_item_gauss(number: f64, i: usize, args: &CmdArgs) -> GenericGauge<Atom
 fn metric_item_uniform(number: f64, i: usize, args: &CmdArgs) -> GenericGauge<AtomicF64> {
     let counter_opts = Opts::new("value", "value of the requested distribution")
         .namespace(args.prefix.to_string())
-        .const_label("min", args.min_value.to_string())
-        .const_label("max", args.max_value.to_string())
+        .const_label("min", (args.mean_value - args.deviation_value).to_string())
+        .const_label("max", (args.mean_value + args.deviation_value).to_string())
         .const_label("element", i.to_string())
         .const_label("distribution", args.distribution.to_string());
 
-    let gauss_number = Gauge::with_opts(counter_opts).unwrap();
+    let uniform_number = Gauge::with_opts(counter_opts).unwrap();
 
-    gauss_number.add(number);
+    uniform_number.add(number);
 
-    gauss_number
+    uniform_number
+}
+
+fn metric_item_chi(number: f64, i: usize, args: &CmdArgs) -> GenericGauge<AtomicF64> {
+    let counter_opts = Opts::new("value", "value of the requested distribution")
+        .namespace(args.prefix.to_string())
+        .const_label("expected", args.mean_value.to_string())
+        .const_label("element", i.to_string())
+        .const_label("distribution", args.distribution.to_string());
+
+    let chi_number = Gauge::with_opts(counter_opts).unwrap();
+
+    chi_number.add(number);
+
+    chi_number
 }
 
 fn metric_item_scrape_collector_duration(
@@ -120,8 +144,8 @@ mod test {
             port: 7878,
             elements: 1,
             binding_adress: "127.0.0.1".to_string(),
-            min_value: 10,
-            max_value: 100,
+            mean_value: 100,
+            deviation_value: 10,
             distribution: "gauss".to_string(),
             prefix: "statistical".to_string(),
             dry_run: 'n',
@@ -133,13 +157,31 @@ mod test {
     }
 
     #[test]
+    fn test_metric_as_uniform() {
+        let args = CmdArgs {
+            port: 7878,
+            elements: 1,
+            binding_adress: "127.0.0.1".to_string(),
+            mean_value: 100,
+            deviation_value: 10,
+            distribution: "gauss".to_string(),
+            prefix: "statistical".to_string(),
+            dry_run: 'n',
+        };
+
+        let item = metric_item_uniform(42 as f64, 0 as usize, &args);
+
+        assert_eq!(item.get(), 42 as f64);
+    }
+
+    #[test]
     fn test_metric_duration() {
         let args = CmdArgs {
             port: 7878,
             elements: 1,
             binding_adress: "127.0.0.1".to_string(),
-            min_value: 10,
-            max_value: 100,
+            mean_value: 100,
+            deviation_value: 10,
             distribution: "gauss".to_string(),
             prefix: "statistical".to_string(),
             dry_run: 'n',
@@ -156,8 +198,8 @@ mod test {
             port: 7878,
             elements: 1,
             binding_adress: "127.0.0.1".to_string(),
-            min_value: 10,
-            max_value: 100,
+            mean_value: 100,
+            deviation_value: 10,
             distribution: "gauss".to_string(),
             prefix: "statistical".to_string(),
             dry_run: 'n',

@@ -7,6 +7,7 @@ mod prom_exporter;
 
 mod gauss;
 mod uniform;
+mod chisquared;
 
 use std::net::TcpListener;
 use std::net::TcpStream;
