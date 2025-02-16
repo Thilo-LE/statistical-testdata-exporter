@@ -1,0 +1,17 @@
+# Statistical testdata exporter
+
+It is a Prometheus exporter to provide testdata as some statistical distributions.
+
+Basically it is used the Rust crate https://crates.io/crates/rand_distr[rand_distr] to generate the test data.
+
+## Parameter and options
+
+## Common Prometheus metrics
+
+## Supported distributions
+
+### Gaussian (Normal or bell curve) distribution
+
+### Uniform distribution
+
+### Chi-squared distribution
