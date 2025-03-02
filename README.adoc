@@ -6,6 +6,32 @@ Basically it is used the Rust crate https://crates.io/crates/rand_distr[rand_dis
 
 ## Parameter and options
 
+----
+Options:
+  -p, --port <PORT>
+          which port is used [default: 7878]
+  -b, --binding-adress <BINDING_ADRESS>
+          binding adress [default: 127.0.0.1]
+      --mean-value <MEAN_VALUE>
+          mean or expected value [default: 100]
+      --p-value <P_VALUE>
+          probability value for Binomial [default: 0.5]
+      --deviation-value <DEVIATION_VALUE>
+          deviation or (max-min)/2 [default: 10]
+      --elements <ELEMENTS>
+          count of elements [default: 10]
+      --distribution <DISTRIBUTION>
+          name of distribution all, gaussian, uniform, bernoulli, chisquared [default: all]
+      --prefix <PREFIX>
+          namespace or prefix [default: statistical]
+  -d, --dry-run <DRY_RUN>
+          dry-run print the current metric to stdout and exit [default: n]
+  -h, --help
+          Print help
+  -V, --version
+          Print version
+----
+
 ## Common Prometheus metrics
 
 .common metrics
@@ -21,52 +47,100 @@ statistical_scrape_timestamp_msec 1739741427919
 
 ## Supported distributions
 
-### Gaussian (Normal or bell curve) distribution
+### https://docs.rs/rand_distr/0.5.1/rand_distr/struct.Normal.html[Gaussian (Normal or bell curve) distribution]
+
+Relevant arguments are:
+
+- mean_value: 10,
+- deviation_value: 2, 
+- elements: 10, 
+- distribution: gaussian,
 
 .gaussian distribution
 [source]
 ----
-# HELP statistical_value value of the requested distribution
-# TYPE statistical_value gauge
-statistical_value{deviation="10",distribution="gaussian",element="0",mean="100"} 97.2222900390625
-statistical_value{deviation="10",distribution="gaussian",element="1",mean="100"} 121.78897857666016
-statistical_value{deviation="10",distribution="gaussian",element="2",mean="100"} 99.98178100585938
-statistical_value{deviation="10",distribution="gaussian",element="3",mean="100"} 95.9586181640625
-statistical_value{deviation="10",distribution="gaussian",element="4",mean="100"} 95.83863830566406
-statistical_value{deviation="10",distribution="gaussian",element="5",mean="100"} 109.36347198486328
-statistical_value{deviation="10",distribution="gaussian",element="6",mean="100"} 87.68035888671875
+# HELP statistical_value_gaussian value of the requested distribution gaussian
+# TYPE statistical_value_gaussian gauge
+statistical_value_gaussian{deviation="2",element="0",mean="10"} 9.040939331054688
+statistical_value_gaussian{deviation="2",element="1",mean="10"} 10.02742862701416
+statistical_value_gaussian{deviation="2",element="2",mean="10"} 9.255369186401367
+statistical_value_gaussian{deviation="2",element="3",mean="10"} 8.274629592895508
+statistical_value_gaussian{deviation="2",element="4",mean="10"} 12.422362327575684
+...
 ----
 
 
-### Uniform distribution
+### https://docs.rs/rand_distr/0.5.1/rand_distr/uniform/index.html[Uniform distribution]
+
+Relevant arguments are:
+
+- mean_value: 10
+- deviation_value: 2, 
+- elements: 10, 
+- distribution: uniform
+
+
+It returns the number of the intervall `mean_value - deviation` and `mean_value + deviation`
 
 .uniform distribution
 [source]
 ----
-# HELP statistical_value value of the requested distribution
-# TYPE statistical_value gauge
-statistical_value{distribution="uniform",element="0",max="110",min="90"} 94
-statistical_value{distribution="uniform",element="1",max="110",min="90"} 99
-statistical_value{distribution="uniform",element="2",max="110",min="90"} 107
-statistical_value{distribution="uniform",element="3",max="110",min="90"} 103
-statistical_value{distribution="uniform",element="4",max="110",min="90"} 109
-statistical_value{distribution="uniform",element="5",max="110",min="90"} 103
-statistical_value{distribution="uniform",element="6",max="110",min="90"} 99
-statistical_value{distribution="uniform",element="7",max="110",min="90"} 106
+# HELP statistical_value_uniform value of the requested distribution uniform
+# TYPE statistical_value_uniform gauge
+statistical_value_uniform{element="0",max="12",min="8"} 8
+statistical_value_uniform{element="1",max="12",min="8"} 9
+statistical_value_uniform{element="2",max="12",min="8"} 10
+statistical_value_uniform{element="3",max="12",min="8"} 11
+statistical_value_uniform{element="4",max="12",min="8"} 11
+statistical_value_uniform{element="5",max="12",min="8"} 8
+statistical_value_uniform{element="6",max="12",min="8"} 9
+...
 ----
 
-### Chi-squared distribution
+### https://docs.rs/rand_distr/0.5.1/rand_distr/struct.ChiSquared.html[Chi-squared distribution]
+
+Relevant arguments are:
+
+- mean_value: 10 which is the degree of freedom,
+- elements: 10, 
+- distribution: chisquared
 
 .chi-squared metrics
 [source]
 ----
-# HELP statistical_value value of the requested distribution
-# TYPE statistical_value gauge
-statistical_value{distribution="chisquared",element="0",expected="100"} 253.55924367904663
-statistical_value{distribution="chisquared",element="1",expected="100"} 112.38859966397285
-statistical_value{distribution="chisquared",element="10",expected="100"} 106.2696062028408
-statistical_value{distribution="chisquared",element="11",expected="100"} 242.23743677139282
-statistical_value{distribution="chisquared",element="12",expected="100"} 144.66599822044373
-statistical_value{distribution="chisquared",element="13",expected="100"} 218.4202790260315
-statistical_value{distribution="chisquared",element="14",expected="100"} 169.91272568702698
+# HELP statistical_value_chisquared value of the requested distribution chisquared
+# TYPE statistical_value_chisquared gauge
+statistical_value_chisquared{element="0",expected="10"} 10.477335080504417
+statistical_value_chisquared{element="1",expected="10"} 44.25242900848389
+statistical_value_chisquared{element="2",expected="10"} 27.60183095932007
+statistical_value_chisquared{element="3",expected="10"} 12.898196876049042
+statistical_value_chisquared{element="4",expected="10"} 12.497612833976746
+statistical_value_chisquared{element="5",expected="10"} 28.795610666275024
+statistical_value_chisquared{element="6",expected="10"} 30.823180675506592
+statistical_value_chisquared{element="7",expected="10"} 12.657150030136108
+statistical_value_chisquared{element="8",expected="10"} 13.904240727424622
+statistical_value_chisquared{element="9",expected="10"} 43.572819232940674
+----
+
+### https://docs.rs/rand_distr/0.5.1/rand_distr/struct.Binomial.html[Binomial distribution]
+
+Relevant arguments are:
+
+- p_value: 0.8, 
+- elements: 30, 
+- distribution: binomial, 
+
+The `mean_value` is the count of trials. The `p_value` is the probability of a successfully trail.
+
+.binomial metrics
+[source]
+----
+# HELP statistical_value_binomial value of the requested distribution Binomial
+# TYPE statistical_value_binomial gauge
+statistical_value_binomial{element="0",probability="0.8",trails="1"} 1
+statistical_value_binomial{element="1",probability="0.8",trails="1"} 0
+statistical_value_binomial{element="10",probability="0.8",trails="1"} 1
+statistical_value_binomial{element="11",probability="0.8",trails="1"} 1
+statistical_value_binomial{element="12",probability="0.8",trails="1"} 1
+...
 ----
