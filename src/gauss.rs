@@ -1,4 +1,4 @@
-use rand_distr::{num_traits::float, Distribution, Normal};
+use rand_distr::{Distribution, Normal};
 
 use crate::CmdArgs;
 
@@ -25,6 +25,7 @@ mod test {
             elements: 20,
             binding_adress: "127.0.0.1".to_string(),
             mean_value: 10,
+            p_value: 0.5,            
             deviation_value: 100,
             distribution: "gauss".to_string(),
             prefix: "statistical".to_string(),

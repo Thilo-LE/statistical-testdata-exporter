@@ -8,6 +8,7 @@ mod prom_exporter;
 mod gauss;
 mod uniform;
 mod chisquared;
+mod binomial;
 
 use std::net::TcpListener;
 use std::net::TcpStream;
