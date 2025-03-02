@@ -12,14 +12,17 @@ pub struct CmdArgs {
     /// mean or expected value
     #[arg(long, default_value_t = 100)]
     pub mean_value: i32,
+    /// probability value for Binomial
+    #[arg(long, default_value_t = 0.5)]
+    pub p_value: f32,
     /// deviation or (max-min)/2
     #[arg(long, default_value_t = 10)]
     pub deviation_value: i32,
     /// count of elements
     #[arg(long, default_value_t = 10)]
     pub elements: i32,
-    /// name of distribution gaussian, uniform, bernoulli, chisquared
-    #[arg(long, default_value_t = String::from("gaussian"))]
+    /// name of distribution all, gaussian, uniform, bernoulli, chisquared
+    #[arg(long, default_value_t = String::from("all"))]
     pub distribution: String,
     /// namespace or prefix
     #[arg(long, default_value_t = String::from("statistical"))]
