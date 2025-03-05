@@ -10,8 +10,8 @@ Basically it is used the Rust crate https://crates.io/crates/rand_distr[rand_dis
 Options:
   -p, --port <PORT>
           which port is used [default: 7878]
-  -b, --binding-adress <BINDING_ADRESS>
-          binding adress [default: 127.0.0.1]
+  -b, --binding-address <BINDING_ADDRESS>
+          binding address [default: 127.0.0.1]
       --mean-value <MEAN_VALUE>
           mean or expected value [default: 100]
       --p-value <P_VALUE>
@@ -21,7 +21,7 @@ Options:
       --elements <ELEMENTS>
           count of elements [default: 10]
       --distribution <DISTRIBUTION>
-          name of distribution all, gaussian, uniform, bernoulli, chisquared [default: all]
+          name of distribution all, gaussian, uniform, binomial, chisquared [default: all]
       --prefix <PREFIX>
           namespace or prefix [default: statistical]
   -d, --dry-run <DRY_RUN>
@@ -126,6 +126,7 @@ statistical_value_chisquared{element="9",expected="10"} 43.572819232940674
 
 Relevant arguments are:
 
+- mean_value: 1,
 - p_value: 0.8, 
 - elements: 30, 
 - distribution: binomial, 

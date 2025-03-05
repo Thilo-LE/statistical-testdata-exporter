@@ -25,7 +25,7 @@ mod test {
         let args = CmdArgs {
             port: 7878,
             elements: 1,
-            binding_adress: "127.0.0.1".to_string(),
+            binding_address: "127.0.0.1".to_string(),
             mean_value: 50,
             p_value: 0.5,            
             deviation_value: 10,
@@ -46,7 +46,7 @@ mod test {
         let args = CmdArgs {
             port: 7878,
             elements: 20,
-            binding_adress: "127.0.0.1".to_string(),
+            binding_address: "127.0.0.1".to_string(),
             mean_value: 50,
             p_value: 0.5,            
             deviation_value: 10,

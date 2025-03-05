@@ -6,9 +6,9 @@ pub struct CmdArgs {
     /// which port is used
     #[arg(short, long, default_value_t = 7878)]
     pub port: u32,
-    /// binding adress
+    /// binding address
     #[arg(short, long, default_value_t = String::from("127.0.0.1"))]
-    pub binding_adress: String,
+    pub binding_address: String,
     /// mean or expected value
     #[arg(long, default_value_t = 100)]
     pub mean_value: i32,
@@ -21,7 +21,7 @@ pub struct CmdArgs {
     /// count of elements
     #[arg(long, default_value_t = 10)]
     pub elements: i32,
-    /// name of distribution all, gaussian, uniform, bernoulli, chisquared
+    /// name of distribution all, gaussian, uniform, binomial, chisquared
     #[arg(long, default_value_t = String::from("all"))]
     pub distribution: String,
     /// namespace or prefix

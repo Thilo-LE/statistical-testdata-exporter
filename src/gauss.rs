@@ -23,7 +23,7 @@ mod test {
         let args = CmdArgs {
             port: 7878,
             elements: 20,
-            binding_adress: "127.0.0.1".to_string(),
+            binding_address: "127.0.0.1".to_string(),
             mean_value: 10,
             p_value: 0.5,            
             deviation_value: 100,

@@ -21,7 +21,7 @@ fn main() {
     let args = CmdArgs::parse();
     println!("Arguments are -> {:?}", args);
 
-    let addr = format!("{}:{}", args.binding_adress, args.port);
+    let addr = format!("{}:{}", args.binding_address, args.port);
 
     if args.dry_run == 'y' {
         execute_dry_run(&args);
