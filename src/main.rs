@@ -1,6 +1,9 @@
 use std::io::Read;
 use std::io::Write;
 use std::vec::Vec;
+use std::str;
+
+use regex::Regex;
 
 use prometheus::{Encoder, TextEncoder};
 mod prom_exporter;
@@ -22,6 +25,10 @@ fn main() {
     println!("Arguments are -> {:?}", args);
 
     let addr = format!("{}:{}", args.binding_address, args.port);
+
+    if let Err(evaluate_args) = evaluate_args(&args) {
+        panic!("{}", evaluate_args); 
+    }
 
     if args.dry_run == 'y' {
         execute_dry_run(&args);
@@ -81,4 +88,70 @@ fn handle_connection(mut stream: TcpStream, args: &CmdArgs) {
 
     stream.write(response.as_bytes()).unwrap();
     stream.flush().unwrap();
+}
+
+fn evaluate_args(args: &CmdArgs) -> Result<bool, &'static str> {
+
+    if let Err(err_str) = evaluate_binding_address(args.binding_address.clone()) {
+        return Err(err_str); 
+    }
+
+    if let Err(err_str) = evaluate_pvalue(args.p_value) {
+        return Err(err_str);
+    }
+
+    Ok(true)
+}
+
+fn evaluate_binding_address(binding_address: String) -> Result<bool, &'static str> {
+
+    let re = Regex::new(r"\b((25[0-5])|(2[0-4][0-9])|(1[0-9][0-9])|([1-9][0-9])|([0-9]))[.]((25[0-5])|(2[0-4][0-9])|(1[0-9][0-9])|([1-9][0-9])|([0-9]))[.]((25[0-5])|(2[0-4][0-9])|(1[0-9][0-9])|([1-9][0-9])|([0-9]))[.]((25[0-5])|(2[0-4][0-9])|(1[0-9][0-9])|([1-9][0-9])|([0-9]))\b").unwrap();
+
+
+    if re.is_match(binding_address.as_str()) {
+        Ok(true)
+    }
+    else {
+        Err("the binding_address doesn't have the IPv4-format <0.0.0.0> to <255.255.255.255>")
+    }
+}
+
+fn evaluate_pvalue(pvalue: f32) -> Result<bool, &'static str> {
+    if pvalue >= 0 as f32 && pvalue <= 1 as f32 {
+        Ok(true)
+    }
+    else {
+        Err("p-value must be between 0 <= p-value <= 1")
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_evaluate_binding_address_ok() {
+
+        assert!(evaluate_binding_address("123.56.89.255".to_string()).is_ok());
+    }
+
+    #[test]
+    fn test_evaluate_binding_address_err() {
+
+        assert!(evaluate_binding_address("".to_string()).is_err());
+        assert!(evaluate_binding_address("123".to_string()).is_err());
+        assert!(evaluate_binding_address("abcdesf".to_string()).is_err());
+        assert!(evaluate_binding_address("256.100.2.255".to_string()).is_err());
+    }
+
+    #[test]
+    fn test_pvalue_ok() {
+        assert!(evaluate_pvalue(0.2 as f32).is_ok());
+    }
+
+    #[test]
+    fn test_pvalue_err() {
+        assert!(evaluate_pvalue(1.2 as f32).is_err());
+        assert!(evaluate_pvalue(-0.2 as f32).is_err());
+    }
 }
