@@ -74,7 +74,7 @@ fn handle_connection(mut stream: TcpStream, args: &CmdArgs) {
 
     let (status_line, content) = if buffer.starts_with(accepted_uri) {
         (
-            "HTTP/1.1 200 OK\r\n\r\n",
+            "HTTP/1.1 200 OK\r\nContent-type: text/plain\r\n\r\n",
             String::from_utf8(get_metrics(args)).unwrap(),
         )
     } else {
