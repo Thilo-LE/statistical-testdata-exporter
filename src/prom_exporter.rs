@@ -12,8 +12,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::CmdArgs;
 
-// TODO: Funktion gibt ein Result zurück, damit der Fehler übertragen werden kann
-pub fn create_metrics(args: &CmdArgs) -> Registry {
+pub fn create_metrics(args: &CmdArgs) -> Result<Registry, &'static str> {
     let r = Registry::new();
 
     let scraping_start = Instant::now();
@@ -72,13 +71,16 @@ pub fn create_metrics(args: &CmdArgs) -> Registry {
         }
 
     }
-    else { // FIXME: Test auf Gauss, die unbekannten Verteilungen verursachen einen Abbruch
+    else if args.distribution == "gaussian".to_string() { 
         let gauss_sequence = gauss_number(args);
 
         for (i, number) in gauss_sequence.into_iter().enumerate() {
             r.register(Box::new(metric_item_gauss(number, i, args).clone()))
                 .unwrap();
         }
+    }
+    else {
+        return Err("distribution is not supported");
     }
 
     let duration = scraping_start.elapsed().as_secs_f64();
@@ -96,7 +98,7 @@ pub fn create_metrics(args: &CmdArgs) -> Registry {
     ))
     .unwrap();
 
-    r
+    Ok(r)
 }
 
 

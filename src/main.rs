@@ -54,7 +54,11 @@ fn execute_http(addr: &String, args: &CmdArgs) {
 }
 
 fn get_metrics(args: &CmdArgs) -> Vec<u8> {
-    let register = crate::prom_exporter::create_metrics(args);
+    let register_result = crate::prom_exporter::create_metrics(args);
+    let register = match register_result {
+        Ok(register) => register,
+        Err(err_txt) => panic!("{}", err_txt),
+    };
 
     let mut buffer = vec![];
     let encoder = TextEncoder::new();
