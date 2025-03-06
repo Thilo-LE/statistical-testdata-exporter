@@ -1,0 +1,23 @@
+---
+
+services:
+  statistical-data:
+    image: prom/statistical-testdata:latest
+    ports:
+      - "7878:7878"
+    command:
+      - "--binding-address"
+      - "0.0.0.0"
+      - "--mean-value"
+      - "100"
+      - "--p-value"
+      - "0.8"
+      - "--deviation-value"
+      - "10"
+      - "--elements"
+      - "10"
+      - "--distribution"
+      - "all"
+      - "--prefix"
+      - "statistical"
+

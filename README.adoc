@@ -4,6 +4,34 @@ It is a Prometheus exporter to provide testdata as some statistical distribution
 
 Basically it is used the Rust crate https://crates.io/crates/rand_distr[rand_distr] to generate the test data.
 
+## Build and execute
+
+### containerless
+
+[source, bash]
+----
+cargo build
+cargo test
+cargo run
+----
+
+Open in your browser http://localhost:7878/metrics
+
+### Docker container
+
+[source, bash]
+----
+cargo build --target=x86_64-unknown-linux-musl --release <1>
+docker build -t prom/statistical-testdata . <2>
+docker run --rm --port 7878:7878 prom/statistical-testdata --binding-address 0.0.0.0 <3>
+docker compose up -d <4>
+----
+
+<1> build with MUSL support without any debugging information
+<2> build a Docker image like defined in `./Dockerfile`
+<3> start the container and browse to http://0.0.0.0:7878/metrics
+<4> alternative, start docker compose the `compose.yml` as detached and browse to http://0.0.0.0:7878/metrics
+
 ## Parameter and options
 
 ----
